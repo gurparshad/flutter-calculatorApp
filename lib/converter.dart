@@ -1,29 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:math_expressions/math_expressions.dart';
-import 'converter.dart';
 
-void main() {
-  runApp(Calculator());
-}
-
-class Calculator extends StatelessWidget {
+class Converter extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'My Calculator',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: SimpleCalculator(),
-    );
-  }
+  _ConverterState createState() => _ConverterState();
 }
 
-class SimpleCalculator extends StatefulWidget {
-  @override
-  _SimpleCalculatorState createState() => _SimpleCalculatorState();
-}
-
-class _SimpleCalculatorState extends State<SimpleCalculator> {
+class _ConverterState extends State<Converter> {
   String equation = "0";
   String result = "0";
   String expression = "";
@@ -44,23 +26,20 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
         if (equation == "") {
           equation = "0";
         }
+      } else if (buttonText == "km to miles") {
+        var res = double.parse(equation);
+        res = res * 0.6214;
+        var stringResult = res.toStringAsFixed(2);
+        result = stringResult;
+      } else if (buttonText == "miles to km") {
+        var res = double.parse(equation);
+        res = res / 0.6214;
+        var stringResult = res.toStringAsFixed(2);
+        result = stringResult;
       } else if (buttonText == "=") {
         equationFontSize = 38.0;
         resultFontSize = 48.0;
-
         expression = equation;
-        expression = expression.replaceAll('×', '*');
-        expression = expression.replaceAll('÷', '/');
-
-        try {
-          Parser p = Parser();
-          Expression exp = p.parse(expression);
-
-          ContextModel cm = ContextModel();
-          result = '${exp.evaluate(EvaluationType.REAL, cm)}';
-        } catch (e) {
-          result = "Error";
-        }
       } else {
         equationFontSize = 48.0;
         resultFontSize = 38.0;
@@ -69,6 +48,12 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
         } else {
           equation = equation + buttonText;
         }
+      }
+      if (buttonText == "km to miles") {
+        var result = double.parse(equation);
+        result = result * 0.6214;
+        var stringResult = result.toString();
+        expression = stringResult;
       }
     });
   }
@@ -99,17 +84,6 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
         body: Column(
           children: <Widget>[
             Container(
-              child: RaisedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Converter()),
-                    );
-                  },
-                  child: Text("Convertor"),
-                  color: Colors.redAccent),
-            ),
-            Container(
               alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
               child:
@@ -123,6 +97,18 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
             Expanded(
               child: Divider(),
             ),
+            Container(
+              child: RaisedButton(
+                  onPressed: () => buttonPressed("km to miles"),
+                  child: Text("km to miles"),
+                  color: Colors.redAccent),
+            ),
+            Container(
+              child: RaisedButton(
+                  onPressed: () => buttonPressed("miles to km"),
+                  child: Text("miles to km"),
+                  color: Colors.redAccent),
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Container(
                   width: MediaQuery.of(context).size.width * .75,
@@ -131,7 +117,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
                       TableRow(children: [
                         buildButton("C", 1, Colors.redAccent),
                         buildButton("⌫", 1, Colors.blue),
-                        buildButton("÷", 1, Colors.blue),
+                        buildButton("C", 1, Colors.redAccent),
                       ]),
                       TableRow(children: [
                         buildButton("7", 1, Colors.black54),
@@ -155,28 +141,6 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
                       ]),
                     ],
                   )),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Table(
-                  children: [
-                    TableRow(children: [
-                      buildButton("×", 1, Colors.blue),
-                    ]),
-                    TableRow(children: [
-                      buildButton("-", 1, Colors.blue),
-                    ]),
-                    TableRow(children: [
-                      buildButton("+", 1, Colors.blue),
-                    ]),
-                    TableRow(children: [
-                      buildButton("^", 1, Colors.blue),
-                    ]),
-                    TableRow(children: [
-                      buildButton("=", 1, Colors.redAccent),
-                    ]),
-                  ],
-                ),
-              )
             ])
           ],
         ));
