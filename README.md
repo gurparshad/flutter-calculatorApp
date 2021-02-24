@@ -2,6 +2,10 @@
 
 A new Flutter project.
 
+# install this package
+dart math expression solver
+https://pub.dev/packages/math_expressions
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
