@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'converter.dart';
+import 'history.dart';
+import 'package:gson/gson.dart';
 
 void main() {
   runApp(Calculator());
@@ -29,6 +34,29 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
   String expression = "";
   double equationFontSize = 38.0;
   double resultFontSize = 48.0;
+  Map<String, dynamic> history = {};
+  List historyList2 = [];
+
+  setHistory() async {
+    print("inside setHistory");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // loading the old history
+    List<String> loadedList = prefs.getStringList("history");
+    print("loaded list");
+    print(loadedList);
+    setState(() {
+      historyList2 = loadedList.map((item) => json.decode(item)).toList();
+    });
+
+    historyList2.add(history);
+
+    // adding new history
+    List<String> list = historyList2.map((item) => json.encode(item)).toList();
+    print("new history list");
+    print(list);
+    prefs.setStringList("history", list);
+  }
 
   buttonPressed(String buttonText) {
     setState(() {
@@ -49,6 +77,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
         resultFontSize = 48.0;
 
         expression = equation;
+        // take the above expression to pit in history
         expression = expression.replaceAll('×', '*');
         expression = expression.replaceAll('÷', '/');
 
@@ -58,6 +87,13 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
 
           ContextModel cm = ContextModel();
           result = '${exp.evaluate(EvaluationType.REAL, cm)}';
+          // take this result to put in history
+          history = {
+            "equation": "$expression=$result",
+            "timestamp": DateTime.now().toString()
+          };
+          // setting the data in shared preferences
+          setHistory();
         } catch (e) {
           result = "Error";
         }
@@ -107,6 +143,17 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
                     );
                   },
                   child: Text("Convertor"),
+                  color: Colors.redAccent),
+            ),
+            Container(
+              child: RaisedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => History()),
+                    );
+                  },
+                  child: Text("History"),
                   color: Colors.redAccent),
             ),
             Container(
